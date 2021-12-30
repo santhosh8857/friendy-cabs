@@ -59,4 +59,19 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// ** Main logic ** //
+
+// to get the list of available drivers
+router.get("/available-drivers", async (req, res) => {
+  try {
+    const data = await driver.find({ available: true });
+    if (data.length !== 0)
+      res.send({ message: "Available Drivers", status: true, data: data });
+    else res.send({ message: "No drivers available", status: false });
+  } catch (err) {
+    console.log(err);
+    res.send({ message: "Error in connection!", status: false });
+  }
+});
+
 module.exports = router;

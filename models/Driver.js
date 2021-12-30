@@ -30,7 +30,7 @@ const DriverSchema = new mongoose.Schema({
   },
   available: {
     type: Boolean,
-    default: false,
+    default: true,
   },
   contact: {
     type: Number,
@@ -59,4 +59,15 @@ module.exports = driver;
 //   fare: Number,
 //   distance: Number,
 //   rideStatus: String,
+// },
+
+// {
+//   from: String,
+//   to: String,
+//   startDate: { type: Date, default: Date.now() },
+//   endDate: Date,
+//   distance: Number,
+//   fare: Number,
+//   rideStatus: { type: String, default: "awaiting driver response" },
+//   customerId: String,
 // },
