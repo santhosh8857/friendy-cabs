@@ -104,7 +104,11 @@ router.put("/accept-ride", async (req, res) => {
       }
     });
 
+    // ** markModified is used to update the nested objects in mongoDB **//
+    await driverData.markModified("rideHistory");
     await driverData.save();
+
+    await customerData.markModified("rideHistory");
     await customerData.save();
 
     res.send({
