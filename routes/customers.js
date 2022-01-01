@@ -88,7 +88,8 @@ router.put("/recharge/:id", async (req, res) => {
   }
 });
 
-// Book ride - takes driver id in URL and customer id in body
+// Book ride - takes driver id from URL and customer id from body
+//  from, to distance and fare taken from body
 router.post("/book-ride/:id", async (req, res) => {
   try {
     // creates unique ID for each rides
@@ -97,34 +98,42 @@ router.post("/book-ride/:id", async (req, res) => {
     const driverData = await driver.findById(req.params.id);
     const customerData = await customer.findById(req.body.customerId);
 
-    if (driverData.length !== 0 && customerData.length !== 0) {
-      // creating obj for additional ride information
-      let rideDetails = {
-        driverId: req.params.id,
-        rideId: rideID,
-        startDate: null,
-        endDate: null,
-        rideStatus: { status: "awaiting driver response", value: 0 }, // 0 - awaiting driver response, 1 - inprogress, 2 - completed, -1 - cancelled
-        driverName: driverData.name,
-        customerName: customerData.name,
-      };
+    // verifying wallet balance
+    if (req.body.fare < customerData.wallet) {
+      if (driverData.length !== 0 && customerData.length !== 0) {
+        // creating obj for additional ride information
+        let rideDetails = {
+          driverId: req.params.id,
+          rideId: rideID,
+          startDate: null,
+          endDate: null,
+          rideStatus: { status: "awaiting driver response", value: 0 }, // 0 - awaiting driver response, 1 - inprogress, 2 - completed, -1 - cancelled
+          driverName: driverData.name,
+          customerName: customerData.name,
+        };
 
-      // updating rideHistory in both driver and customer collections
-      driverData.rideHistory.push({ ...req.body, ...rideDetails });
-      await driverData.save();
+        // updating rideHistory in both driver and customer collections
+        driverData.rideHistory.push({ ...req.body, ...rideDetails });
+        await driverData.save();
 
-      customerData.rideHistory.push({ ...req.body, ...rideDetails });
-      await customerData.save();
+        customerData.rideHistory.push({ ...req.body, ...rideDetails });
+        await customerData.save();
 
-      res.send({
-        message: "Ride Booked",
-        status: true,
-        data: { ...req.body, ...rideDetails },
-      });
+        res.send({
+          message: "Ride Booked!",
+          status: true,
+          data: { ...req.body, ...rideDetails },
+        });
+      } else {
+        res.send({
+          message: "Customer or Driver is not available.",
+          staus: false,
+        });
+      }
     } else {
       res.send({
-        message: "Customer or Driver is not available",
-        staus: false,
+        message: "Invalid balance! Kindly recharge your account.",
+        status: false,
       });
     }
   } catch (err) {

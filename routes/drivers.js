@@ -77,6 +77,7 @@ router.get("/available-drivers", async (req, res) => {
   }
 });
 
+// Accept ride
 // takes ride, customer and driver ID in the body
 router.put("/accept-ride", async (req, res) => {
   try {
@@ -86,21 +87,21 @@ router.put("/accept-ride", async (req, res) => {
     // to get the current time
     let date = moment().format("DD-MM-YYYY hh:mm:ss a");
     // iterate through driver ridehistory to update the ridestatus and startDate
-    driverData.rideHistory.map((item) => {
+    driverData.rideHistory.map((ride) => {
       // comparing manually created mongoDB objectID
-      if (ObjectId(req.body.rideId).equals(item.rideId)) {
-        item.rideStatus.status = "In progress";
-        item.rideStatus.value = 1;
-        item.startDate = date;
+      if (ObjectId(req.body.rideId).equals(ride.rideId)) {
+        ride.rideStatus.status = "In progress";
+        ride.rideStatus.value = 1;
+        ride.startDate = date;
       }
     });
 
     // iterate through customer ridehistory to update the ridestatus and startDate
-    customerData.rideHistory.map((item) => {
-      if (ObjectId(req.body.rideId).equals(item.rideId)) {
-        item.rideStatus.status = "In progress";
-        item.rideStatus.value = 1;
-        item.startDate = date;
+    customerData.rideHistory.map((ride) => {
+      if (ObjectId(req.body.rideId).equals(ride.rideId)) {
+        ride.rideStatus.status = "In progress";
+        ride.rideStatus.value = 1;
+        ride.startDate = date;
       }
     });
 
@@ -114,8 +115,88 @@ router.put("/accept-ride", async (req, res) => {
     res.send({
       message: "Ride accepted!",
       status: true,
-      driverDetails: driverData.rideHistory,
-      customerDetails: customerData.rideHistory,
+      rideDetails: driverData.rideHistory,
+    });
+  } catch (err) {
+    console.log(err);
+    res.send({ message: "Error in connection!", status: false, error: err });
+  }
+});
+
+// Cancel ride
+// takes ride, customer and driver ID in the body
+router.put("/cancel-ride", async (req, res) => {
+  try {
+    const driverData = await driver.findById(req.body.driverId);
+    const customerData = await customer.findById(req.body.customerId);
+
+    // update rideStatus
+    driverData.rideHistory.map((ride) => {
+      if (ObjectId(req.body.rideId).equals(ride.rideId)) {
+        ride.rideStatus.status = "Cancelled";
+        ride.rideStatus.value = -1;
+      }
+    });
+
+    customerData.rideHistory.map((ride) => {
+      if (ObjectId(req.body.rideId).equals(ride.rideId)) {
+        ride.rideStatus.status = "Cancelled";
+        ride.rideStatus.value = -1;
+      }
+    });
+
+    await driverData.markModified("rideHistory");
+    await driverData.save();
+
+    await customerData.markModified("rideHistory");
+    await customerData.save();
+
+    res.send({
+      message: "Ride cancelled!",
+      status: true,
+      rideDetails: driverData.rideHistory,
+    });
+  } catch (err) {
+    console.log(err);
+    res.send({ message: "Error in connection!", status: false, error: err });
+  }
+});
+
+router.put("/end-ride", async (req, res) => {
+  try {
+    const driverData = await driver.findById(req.body.driverId);
+    const customerData = await customer.findById(req.body.customerId);
+
+    let date = moment().format("DD-MM-YYYY hh:mm:ss a");
+
+    driverData.rideHistory.map((ride) => {
+      if (ObjectId(req.body.rideId).equals(ride.rideId)) {
+        ride.endDate = date;
+        driverData.wallet += ride.fare; // adding fare value to driver wallet
+        ride.rideStatus.status = "Completed";
+        ride.rideStatus.value = 2;
+      }
+    });
+
+    customerData.rideHistory.map((ride) => {
+      if (ObjectId(req.body.rideId).equals(ride.rideId)) {
+        ride.endDate = date;
+        customerData.wallet -= ride.fare; // reducing wallet value with fare
+        ride.rideStatus.status = "Completed";
+        ride.rideStatus.value = 2;
+      }
+    });
+
+    await driverData.markModified("rideHistory");
+    await driverData.save();
+
+    await customerData.markModified("rideHistory");
+    await customerData.save();
+
+    res.send({
+      message: "Ride completed!",
+      status: true,
+      rideDetails: driverData.rideHistory,
     });
   } catch (err) {
     console.log(err);
