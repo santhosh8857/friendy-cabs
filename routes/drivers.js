@@ -1,11 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const env = require("dotenv").config();
+const moment = require("moment");
 
 const mongoose = require("mongoose");
 const driver = require("../models/Driver");
+const customer = require("../models/Customer");
 
 const { pwdEncrypt, pwdCompare } = require("../library/auth");
+const { ObjectId } = require("mongodb");
 
 // connection to db
 mongoose.connect(process.env.dbUrl);
@@ -71,6 +74,48 @@ router.get("/available-drivers", async (req, res) => {
   } catch (err) {
     console.log(err);
     res.send({ message: "Error in connection!", status: false });
+  }
+});
+
+// takes ride, customer and driver ID in the body
+router.put("/accept-ride", async (req, res) => {
+  try {
+    const driverData = await driver.findById(req.body.driverId);
+    const customerData = await customer.findById(req.body.customerId);
+
+    // to get the current time
+    let date = moment().format("DD-MM-YYYY hh:mm:ss a");
+    // iterate through driver ridehistory to update the ridestatus and startDate
+    driverData.rideHistory.map((item) => {
+      // comparing manually created mongoDB objectID
+      if (ObjectId(req.body.rideId).equals(item.rideId)) {
+        item.rideStatus.status = "In progress";
+        item.rideStatus.value = 1;
+        item.startDate = date;
+      }
+    });
+
+    // iterate through customer ridehistory to update the ridestatus and startDate
+    customerData.rideHistory.map((item) => {
+      if (ObjectId(req.body.rideId).equals(item.rideId)) {
+        item.rideStatus.status = "In progress";
+        item.rideStatus.value = 1;
+        item.startDate = date;
+      }
+    });
+
+    await driverData.save();
+    await customerData.save();
+
+    res.send({
+      message: "Ride accepted!",
+      status: true,
+      driverDetails: driverData.rideHistory,
+      customerDetails: customerData.rideHistory,
+    });
+  } catch (err) {
+    console.log(err);
+    res.send({ message: "Error in connection!", status: false, error: err });
   }
 });
 
