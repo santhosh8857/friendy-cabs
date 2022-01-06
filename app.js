@@ -4,6 +4,19 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var cors = require("cors");
+var mongoose = require("mongoose");
+const env = require("dotenv").config();
+
+// connection to db
+mongoose.connect(
+  process.env.dbUrl,
+  () => {
+    console.log("Connected to DB");
+  },
+  (e) => {
+    console.log("Error while connecting to DB", e);
+  }
+);
 
 var indexRouter = require("./routes/index");
 var customerRouter = require("./routes/customers");

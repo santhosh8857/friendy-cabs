@@ -9,17 +9,6 @@ const driver = require("../models/Driver");
 
 const { pwdEncrypt, pwdCompare } = require("../library/auth");
 
-// connection to db
-mongoose.connect(
-  process.env.dbUrl,
-  () => {
-    console.log("Connected to DB");
-  },
-  (e) => {
-    console.log("Error while connecting to DB", e);
-  }
-);
-
 // to get customer details
 router.get("/", async (req, res) => {
   try {
@@ -150,22 +139,21 @@ router.put("/cancel-ride", async (req, res) => {
     const driverData = await driver.findById(req.body.driverId);
     const customerData = await customer.findById(req.body.customerId);
 
+    const updateDriver = () => {
+      driverData.rideHistory.map((ride) => {
+        if (ObjectId(req.body.rideId).equals(ride.rideId)) {
+          ride.rideStatus.status = "Cancelled";
+          ride.rideStatus.value = -1;
+        }
+      });
+    };
+
     customerData.rideHistory.map((ride) => {
       if (ObjectId(req.body.rideId).equals(ride.rideId)) {
-        deduction = (5 % 100) * ride.fare;
-
-        const updateDriver = () => {
-          driverData.rideHistory.map((ride) => {
-            if (ObjectId(req.body.rideId).equals(ride.rideId)) {
-              ride.rideStatus.status = "Cancelled";
-              ride.rideStatus.value = -1;
-            }
-          });
-        };
-
+        deduction = (5 / 100) * ride.fare;
         // to check whether the ride is started or not
         if (ride.rideStatus.value === 1) {
-          customerData.wallet -= customerData.wallet - deduction;
+          customerData.wallet = customerData.wallet - deduction;
           ride.rideStatus.status = "Cancelled";
           ride.rideStatus.value = -1;
           updateDriver();
@@ -176,7 +164,7 @@ router.put("/cancel-ride", async (req, res) => {
     await driverData.markModified("rideHistory");
     await driverData.save();
 
-    await customerData.markModified("rideHistory");
+    await customerData.markModified("rideHistory"); //
     await customerData.save();
 
     res.send({

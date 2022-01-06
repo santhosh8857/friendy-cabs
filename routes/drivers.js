@@ -10,9 +10,6 @@ const customer = require("../models/Customer");
 const { pwdEncrypt, pwdCompare } = require("../library/auth");
 const { ObjectId } = require("mongodb");
 
-// connection to db
-mongoose.connect(process.env.dbUrl);
-
 // to get driver details
 router.get("/", async (req, res) => {
   try {
@@ -123,45 +120,7 @@ router.put("/accept-ride", async (req, res) => {
   }
 });
 
-// Cancel ride
-// takes ride, customer and driver ID in the body
-router.put("/cancel-ride", async (req, res) => {
-  try {
-    const driverData = await driver.findById(req.body.driverId);
-    const customerData = await customer.findById(req.body.customerId);
-
-    // update rideStatus
-    driverData.rideHistory.map((ride) => {
-      if (ObjectId(req.body.rideId).equals(ride.rideId)) {
-        ride.rideStatus.status = "Cancelled";
-        ride.rideStatus.value = -1;
-      }
-    });
-
-    customerData.rideHistory.map((ride) => {
-      if (ObjectId(req.body.rideId).equals(ride.rideId)) {
-        ride.rideStatus.status = "Cancelled";
-        ride.rideStatus.value = -1;
-      }
-    });
-
-    await driverData.markModified("rideHistory");
-    await driverData.save();
-
-    await customerData.markModified("rideHistory");
-    await customerData.save();
-
-    res.send({
-      message: "Ride cancelled!",
-      status: true,
-      rideDetails: driverData.rideHistory,
-    });
-  } catch (err) {
-    console.log(err);
-    res.send({ message: "Error in connection!", status: false, error: err });
-  }
-});
-
+// End ride
 router.put("/end-ride", async (req, res) => {
   try {
     const driverData = await driver.findById(req.body.driverId);
