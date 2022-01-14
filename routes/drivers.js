@@ -90,6 +90,7 @@ router.put("/accept-ride", async (req, res) => {
         ride.rideStatus.status = "In progress";
         ride.rideStatus.value = 1;
         ride.startDate = date;
+        driverData.available = false;
       }
     });
 
@@ -134,6 +135,7 @@ router.put("/end-ride", async (req, res) => {
         driverData.wallet += ride.fare; // adding fare value to driver wallet
         ride.rideStatus.status = "Completed";
         ride.rideStatus.value = 2;
+        driverData.available = true;
       }
     });
 

@@ -35,6 +35,7 @@ router.put("/cancel-ride", async (req, res) => {
       if (ObjectId(req.body.rideId).equals(ride.rideId)) {
         ride.rideStatus.status = "Cancelled";
         ride.rideStatus.value = -1;
+        driverData.available = true;
       }
     });
 
