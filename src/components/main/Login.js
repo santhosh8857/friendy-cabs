@@ -1,5 +1,7 @@
+import Home from "./Home";
+
 const Login = () => {
-  return <div> This is login page</div>;
+  return <Home login={true} />;
 };
 
 export default Login;
