@@ -34,3 +34,35 @@
 .logo-color {
   color: #fca311;
 }
+
+/* .dropdown {
+  position: relative;
+} */
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 2;
+  margin: 10px 10px 0 0;
+  width: 100%;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  z-index: 1;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown-item {
+  margin: 10px;
+}
+
+.dropdown-link {
+  text-decoration: none;
+  color: #333;
+}
+
+.dropdown-link:hover {
+  color: #fca311;
+}

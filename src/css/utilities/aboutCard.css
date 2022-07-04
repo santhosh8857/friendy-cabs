@@ -1,0 +1,12 @@
+.about-card {
+  margin: 10px;
+  padding: 10px;
+  font-size: 17px;
+  line-height: 1.6;
+  width: 25%;
+}
+
+.about-title {
+  color: #fca311;
+  font-size: 32px;
+}

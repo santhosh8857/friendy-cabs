@@ -6,8 +6,10 @@ import Navbar from "../utilities/Navbar";
 
 import "../../css/main/home.css";
 import "../../css/utilities/form.css";
+import About from "./About";
 
 const Home = ({ login }) => {
+  // return <>This is home page</>;
   const [userData, setUserData] = useState({
     email: "",
     password: "",
@@ -97,7 +99,7 @@ const Home = ({ login }) => {
           </div>
         )}
       </header>
-      {/* <About /> */}
+      <About />
     </>
   );
 };

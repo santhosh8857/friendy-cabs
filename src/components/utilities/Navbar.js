@@ -36,8 +36,20 @@ const Navbar = ({ login }) => {
             </>
           )}
           <li>
-            <Link className="route-link" to="/register">
+            <Link className="route-link dropdown" to="/customer">
               Register
+              <div className="dropdown-content">
+                <div className="dropdown-item">
+                  <Link className="dropdown-link" to="/customer">
+                    <i class="fas fa-chevron-right"></i> Customer
+                  </Link>
+                </div>
+                <div className="dropdown-item">
+                  <Link className="dropdown-link" to="/driver">
+                    <i class="fas fa-chevron-right"></i> Driver
+                  </Link>
+                </div>
+              </div>
             </Link>
           </li>
         </ul>

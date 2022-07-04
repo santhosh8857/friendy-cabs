@@ -1,0 +1,35 @@
+.service-card {
+  margin: 10px;
+  padding: 10px;
+  font-size: 17px;
+  line-height: 1.6;
+  width: 18%;
+}
+
+.icon-container {
+  border-style: double;
+  /* border-color: #333; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px;
+  margin: 10px 0;
+}
+
+.icon {
+  font-size: 45px;
+  color: #444;
+}
+
+#icon {
+  color: #fff;
+}
+
+.airport {
+  background-color: #fca311;
+  color: #fff;
+}
+/* 
+.airport h3 {
+  color: #fca311;
+} */
